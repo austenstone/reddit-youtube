@@ -169,7 +169,7 @@ export class WatchComponent implements OnInit {
   selectVideo(id: string): void {
     console.warn('select', id);
     const foundVideo = this.videos.find((vid) => vid.youtubeId === id);
-    if (foundVideo) {
+    if (foundVideo && this.youtubePlayer) {
       if (this.currentVideo) {
         this.currentVideo.playing = false;
         this.currentVideo.watched = true;
