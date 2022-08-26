@@ -4,9 +4,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
-    "build-ghpages": "ng build --configuration production",
-    "test": "ng test",
+    "start:terraform": "terraform validate && terraform apply",
+    "start:docker": "docker run --name reddit-youtube -d -p 8080:80 reddit-youtube",
+    "build": "ng build --base-href reddit-youtube",
+    "build:docker": "ng build && docker build . -t reddit-youtube",
+    "test": "ng test --browsers=Headless --no-watch",
     "lint": "ng lint",
     "check-updates": "ng update",
     "e2e": "ng e2e"
