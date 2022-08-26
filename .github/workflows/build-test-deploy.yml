@@ -1,0 +1,14 @@
+name: CI/CD
+on:
+  push:
+    branches: [main]
+    tags: ['*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-test-deploy-release:
+    name: CI/CD
+    uses: austenstone/.github/.github/workflows/angular.yml@main
+    secrets: inherit

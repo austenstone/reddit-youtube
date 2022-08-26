@@ -1,0 +1,6 @@
+name: "CodeQL"
+on: [pull_request]
+
+jobs:
+  codeql:
+    uses: austenstone/.github/.github/workflows/codeql.yml@main
