@@ -1,0 +1,177 @@
+<mat-toolbar [class.toolbar-bottom]="toolbarBottom" *ngIf="youtubePlayer">
+  <button *ngIf="!isMobile" mat-icon-button (click)="drawer.toggle()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <div class="banner" (click)="drawer.toggle()">
+    <img src="assets/img/Reddit_Lockup_OnDark.png">
+    <!-- <span *ngIf="!isMobile">Reddit TV</span> -->
+  </div>
+  <span class="spacer"></span>
+  <button mat-icon-button (click)="playPreviousVideo()" matTooltip="Previous (Shift + ←)">
+    <mat-icon>skip_previous</mat-icon>
+  </button>
+  <button mat-icon-button (click)="youtubePlayer.seekTo(youtubePlayer.getCurrentTime() - 15, true)"
+    matTooltip="Rewind (←)">
+    <mat-icon>fast_rewind</mat-icon>
+  </button>
+  <button mat-icon-button (click)="currentVideo?.playing ? pauseVideo() : playVideo()"
+    [matTooltip]="currentVideo?.playing ? 'Pause (Space)' : 'Play (Space)'">
+    <mat-icon>{{currentVideo?.playing ? 'pause' : 'play_arrow'}}</mat-icon>
+  </button>
+  <button mat-icon-button (click)="youtubePlayer.seekTo(youtubePlayer.getCurrentTime() + 15, true)"
+    matTooltip="Fast Forward (→)">
+    <mat-icon>fast_forward</mat-icon>
+  </button>
+  <button mat-icon-button (click)="playNextVideo()" matTooltip="Next (Shift + →)">
+    <mat-icon>skip_next</mat-icon>
+  </button>
+  <button mat-icon-button (click)="youtubePlayer.seekTo(0, true)" matTooltip="Replay (R)">
+    <mat-icon>replay</mat-icon>
+  </button>
+  <button mat-icon-button [matMenuTriggerFor]="volumeMenu" matTooltip="Volume (↓ / ↑)">
+    <mat-icon>volume_up</mat-icon>
+  </button>
+  <mat-menu #volumeMenu="matMenu">
+    <mat-slider vertical [value]="youtubePlayer.getVolume()" (input)="youtubePlayer.setVolume($event.value)">
+    </mat-slider>
+  </mat-menu>
+  <button mat-icon-button (click)="openVideoInfo()" matTooltip="Video Info (I)">
+    <mat-icon>info</mat-icon>
+  </button>
+  <button mat-icon-button (contextmenu)="saveMenuClick.openMenu()" [matMenuTriggerFor]="saveMenu"
+    #saveMenuClick="matMenuTrigger" matTooltip="History Options">
+    <mat-icon>save</mat-icon>
+  </button>
+  <button mat-icon-button (click)="toolbarBottom = !toolbarBottom"
+    [matTooltip]="toolbarBottom ? 'Toolbar to top' : 'Toolbar to bottom'">
+    <mat-icon>{{toolbarBottom ? 'expand_less' : 'expand_more'}}</mat-icon>
+  </button>
+  <mat-menu #saveMenu="matMenu">
+    <button mat-menu-item (click)="clearWatchHistory()">
+      <mat-icon>history</mat-icon>
+      Clear Watch History
+    </button>
+  </mat-menu>
+</mat-toolbar>
+
+<mat-drawer-container class="example-container" [hasBackdrop]="isMobile" autosize>
+  <mat-drawer #drawer mode="side" [opened]="!isMobile">
+    <div class="drawer-container">
+      <mat-form-field>
+        <mat-label>Subreddit</mat-label>
+        <mat-select [(value)]="currentSubreddit" (selectionChange)="onSubredditChange($event.value)">
+          <mat-select-trigger>
+            <img class="subreddit-icon" [src]="currentSubreddit?.img">
+            {{currentSubreddit?.name | titlecase}}
+          </mat-select-trigger>
+          <mat-option *ngFor="let subreddit of subreddits" [value]="subreddit">
+            <img class="subreddit-icon" [src]="subreddit.img">
+            {{subreddit.name | titlecase}}
+          </mat-option>
+          <mat-option [value]="{ name: customSubredditName }" (click)="setCustomSubreddit($event)">Custom</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field *ngIf="customSubreddit">
+        <span matPrefix>/r/</span>
+        <mat-label>Subreddit</mat-label>
+        <input matInput type="text" placeholder="videos" [value]="customSubredditName"
+          (input)="onCustomSubredditChange2($event)">
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Listing Type</mat-label>
+        <mat-select [(value)]="listingType" (selectionChange)="onListingTypeChange($event)">
+          <mat-select-trigger>
+            {{listingType | titlecase}}
+          </mat-select-trigger>
+          <mat-option value="hot">
+            <mat-icon matListIcon>whatshot</mat-icon>
+            Hot
+          </mat-option>
+          <mat-option value="new">
+            <mat-icon matListIcon>child_care</mat-icon>
+            New
+          </mat-option>
+          <mat-option value="best">
+            <mat-icon matListIcon>star</mat-icon>
+            Best
+          </mat-option>
+          <mat-option value="rising">
+            <mat-icon matListIcon>trending_up</mat-icon>
+            Rising
+          </mat-option>
+          <mat-option value="controversial">
+            <mat-icon matListIcon>star</mat-icon>
+            Controversial
+          </mat-option>
+          <mat-option value="random">
+            <mat-icon matListIcon>translate</mat-icon>
+            Random
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <ng-container *ngIf="videos">
+
+        <div class="video-list">
+          <div class="video-thumbnail" *ngFor="let video of videos" [class.playing]="video.playing"
+            [class.watched]="video.watched" [style.backgroundImage]="'url(' + video.media.oembed.thumbnail_url + ')'"
+            style="background-size: cover;" [matTooltip]="video.title" (click)="selectVideo(video.youtubeId)">
+            <mat-icon>
+              {{video.playing ? 'play_arrow' : (video.finished) ? 'done_all' : (video.watched) ? 'visibility' : ''}}
+            </mat-icon>
+          </div>
+          <mat-divider style="padding: 1px;"></mat-divider>
+        </div>
+
+        <p *ngIf="videos.length === 0">No videos for this subreddit.</p>
+        <button *ngIf="videos.length > 0" mat-button (click)="loadMore()">Load More</button>
+      </ng-container>
+    </div>
+  </mat-drawer>
+
+  <div class="player">
+    <youtube-player (ready)="onPlayerReady($event)" (stateChange)="onPlayerStateChange($event)"
+      [videoId]="currentVideo?.youtubeId" width="100%" height="100%"></youtube-player>
+  </div>
+</mat-drawer-container>
+
+<div style="position: fixed" style="visibility: hidden; position: fixed" [style.left]="contextMenuPosition.x"
+  [style.top]="contextMenuPosition.y" #contextMenuClick="matMenuTrigger" [matMenuTriggerFor]="contextMenu"></div>
+<mat-menu #contextMenu="matMenu">
+  <ng-template matMenuContent let-item="item">
+    <button mat-menu-item (click)="this.selectVideo(item.youtubeId)">
+      <mat-icon>play_arrow</mat-icon>
+      Play
+    </button>
+    <button disabled mat-menu-item (click)="item.watched = false">
+      <mat-icon>queue_play_next</mat-icon>
+      Play Next
+    </button>
+    <button disabled mat-menu-item (click)="item.watched = false">
+      <mat-icon>add_to_queue</mat-icon>
+      Add to Queue
+    </button>
+
+    <button *ngIf="item.finished; else notFinished" mat-menu-item (click)="markVideo(item, 'UNWATCHED')">
+      <mat-icon>done_all</mat-icon>
+      Clear Finished
+    </button>
+    <ng-template #notFinished>
+      <button mat-menu-item (click)="markVideo(item, 'FINISHED')">
+        <mat-icon>done_all</mat-icon>
+        Mark Finished
+      </button>
+      <button *ngIf="item.watched; else notWatched" mat-menu-item (click)="markVideo(item, 'UNWATCHED')">
+        <mat-icon>visibility_off</mat-icon>
+        Clear Watched
+      </button>
+      <ng-template #notWatched>
+        <button mat-menu-item (click)="markVideo(item, 'WATCHED')">
+          <mat-icon>visibility</mat-icon>
+          Mark Watched
+        </button>
+      </ng-template>
+    </ng-template>
+  </ng-template>
+</mat-menu>
