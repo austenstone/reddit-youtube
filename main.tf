@@ -14,7 +14,7 @@ terraform {
     resource_group_name  = "GitHub"
     storage_account_name = "austengithubstorage"
     container_name       = "tfstate"
-    key                  = "prod.terraform.tfstate"
+    key                  = "prod.terraform.tfstate.reddit-yt"
   }
   required_providers {
     azurerm = {
@@ -35,25 +35,22 @@ data "azurerm_resource_group" "GitHub" {
 }
 
 // Web App
-resource "azurerm_service_plan" "example" {
+data "azurerm_service_plan" "example" {
   name                = "example-plan"
   resource_group_name = data.azurerm_resource_group.GitHub.name
-  location            = data.azurerm_resource_group.GitHub.location
-  os_type             = "Linux"
-  sku_name            = "P1v2"
 }
 
 resource "azurerm_linux_web_app" "example" {
   name                = var.web_app_name
   resource_group_name = data.azurerm_resource_group.GitHub.name
   location            = data.azurerm_resource_group.GitHub.location
-  service_plan_id     = azurerm_service_plan.example.id
+  service_plan_id     = data.azurerm_service_plan.example.id
 
   site_config {}
 }
 
 resource "azurerm_linux_web_app_slot" "example" {
-  name           = "example-slot"
+  name           = format("%s-slot", var.web_app_name)
   app_service_id = azurerm_linux_web_app.example.id
 
   site_config {}
