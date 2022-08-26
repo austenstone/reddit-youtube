@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "angular-codespace": {
+    "reddit-youtube": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -20,7 +20,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/angular-codespace",
+            "outputPath": "dist/reddit-youtube",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -72,10 +72,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "angular-codespace:build:production"
+              "browserTarget": "reddit-youtube:build:production"
             },
             "development": {
-              "browserTarget": "angular-codespace:build:development"
+              "browserTarget": "reddit-youtube:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -83,7 +83,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "angular-codespace:build"
+            "browserTarget": "reddit-youtube:build"
           }
         },
         "test": {

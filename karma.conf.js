@@ -25,7 +25,7 @@ module.exports = function (config) {
       suppressAll: true // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/angular-codespace'),
+      dir: require('path').join(__dirname, './coverage/reddit-youtube'),
       subdir: '.',
       reporters: [
         { type: 'html' },
